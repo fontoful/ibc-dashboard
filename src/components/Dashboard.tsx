@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 
 //libraries
 import { Button, Card, Container } from 'react-bootstrap'
-import { db } from '../firebase/firebase'
 import Swal from 'sweetalert2'
+
+// firebase
+import firebase, { db } from '../firebase/firebase'
 
 //assets (images)
 import user_add from '../assets/user_add.svg'
@@ -11,17 +13,19 @@ import user_add from '../assets/user_add.svg'
 //components import
 import Header from './Header'
 import { getUrl } from '../helpers/helper'
+import { ProfilesType } from '../types/types'
 
 const Dashboard = () => {
-  const [profiles, setProfiles] = useState<any[]>([])
+  const [profiles, setProfiles] = useState<ProfilesType[]>([])
 
   useEffect(() => {
-    const getDBData = async () => {
+    const getDBData = async (): Promise<void> => {
       const docSnap = await db
-        .collection('profilesTest')
+        .collection('user-test-data')
         .where('is_member', '==', false)
         .get()
-      const profiles = docSnap.docs.map(doc => ({ ...doc.data(), id: doc.id }))
+      const profiles  = docSnap.docs.map(doc => ({...doc.data(), id: doc.id})) as ProfilesType[]
+
       // setting the profiles upon fetching them
       setProfiles(profiles)
     }
@@ -29,10 +33,11 @@ const Dashboard = () => {
     getDBData()
   }, [])
 
-  const isApprovedFlipper = (profile: any) => (
+  // Function to flip/accept a user
+  const isApprovedFlipper = (profile: ProfilesType) => (
     e: React.MouseEvent<HTMLElement>,
-  ) => {
-    db.collection('profilesTest')
+  ): void => {
+    db.collection('user-test-data')
       .doc(profile.id)
       .set({ ...profile, is_member: true })
       .then(() =>
@@ -45,13 +50,24 @@ const Dashboard = () => {
       .catch(err => console.log(err.message))
   }
 
+  // Function to handle the onChange event for the file input
+  const onChangeHandler = async (e: any): Promise<void> => {
+    const file = e.target.files[0]
+    const storageRef = firebase.storage().ref()
+    const fileRef = storageRef.child(`resources/${file.name}`)
+    await fileRef.put(file)
+    console.log('file was uploaded')
+  }
+
+  console.log(profiles)
+
   return (
     <>
       <Header />
       <Container>
         <h1>These are the users that want to become part of IBC</h1>
         <div className='grid-container'>
-          {profiles.map((prof, idx) => (
+          {profiles.map((prof: ProfilesType, idx: number) => (
             <Card key={idx} className='mx-auto'>
               {prof.img ? (
                 <Card.Img variant='top' src={getUrl(prof.img)} />
@@ -63,6 +79,7 @@ const Dashboard = () => {
                 <Card.Title>My name is {prof.name}</Card.Title>
 
                 <Button onClick={isApprovedFlipper(prof)}>Flip me</Button>
+                <input onChange={onChangeHandler} style={{display: 'block', marginTop: '1rem'}} type="file"/>
               </Card.Body>
             </Card>
           ))}

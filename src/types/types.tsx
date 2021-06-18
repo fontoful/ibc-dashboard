@@ -1,7 +1,14 @@
 export type ProfilesType = {
   bio: string
-  email: string
-  firstName: string
+  email?: string
   is_member: boolean
-  lastName: string
+  name: string
+  likes: string
+  dislikes: string
+  sponsor: string
+  id: string
+  img: string
+  nicknames: string
+  mbr: number
+  msd: string
 }

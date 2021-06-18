@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Auth from '../firebase/firebase'
+import { Auth } from '../firebase/firebase'
 import {
   Form,
   FormGroup,

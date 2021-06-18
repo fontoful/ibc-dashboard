@@ -1,5 +1,5 @@
 import React from 'react'
-import Auth from '../firebase/firebase'
+import { Auth } from '../firebase/firebase'
 import { Button } from 'react-bootstrap'
 
 const Header: React.FC = () => {
